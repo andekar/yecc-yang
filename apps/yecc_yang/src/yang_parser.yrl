@@ -1,6 +1,6 @@
-Nonterminals module_stmt module_header_stmts module_header_stmt module_stmts linkage_stmts linkage_stmt prefix_stmt import_stmt include_stmt include_stmt_cont revision_date_stmts revision_date_stmt body_stmts body_stmt typedef_stmt typedef_stmts typedef_stmtp type_stmt type_stmt_cont type_body_stmts numerical_restrictions range_stmt range_stmt_cont range_stmts range_stmtp error_message_stmt error_app_tag_stmt description_stmt reference_stmt decimal64_specification fraction_digits_stmt string_restrictions string_restriction length_stmt length_stmt_cont length_stmts length_stmtp pattern_stmt pattern_stmt_cont pattern_stmts pattern_stmtp units_stmt default_stmt status_stmt data_def_stmt container_stmt container_stmt_cont container_stmts container_stmtp when_stmt when_stmts when_stmtp when_stmt_cont if_feature_stmt must_stmt must_stmt_cont must_stmtp must_stmts presence_stmt config_stmt grouping_stmt grouping_stmtp grouping_stmts grouping_stmt_cont leaf_stmt leaf_stmts leaf_stmtp mandatory_stmt leaf_list_stmt leaf_list_stmts leaf_list_stmtp min_elements_stmt max_elements_stmt ordered_by_stmt list_stmtp list_stmts list_stmt unique_stmt key_stmt key_arg_strs true_or_false enum_specification leafref_specification identityref_specification instance_identifier_specification bits_specification union_specification enum_stmt enum_stmt_cont enum_stmts enum_stmtp value_stmt status_arg bit_stmt bit_stmt_cont bit_stmts bit_stmtp position_stmt base_stmt require_instance_stmt path_stmt string_or_int submodule_stmt revision_stmt revision_stmt_cont revision_stmts revision_stmtp meta_stmts meta_stmt contact_stmt organization_stmt submodule_header_stmts belongs_to_stmt yang_version_stmt mod_or_submod augment_stmt augment_stmts augment_stmtp case_stmt case_stmt_cont case_stmtp case_stmts choice_stmt choice_stmtp choice_stmts choice_stmt_cont identity_stmt_cont identity_stmt identity_stmts identity_stmtp.
+Nonterminals module_stmt module_header_stmts module_header_stmt module_stmts linkage_stmts linkage_stmt prefix_stmt import_stmt include_stmt include_stmt_cont revision_date_stmts revision_date_stmt body_stmts body_stmt typedef_stmt typedef_stmts typedef_stmtp type_stmt type_stmt_cont type_body_stmts numerical_restrictions range_stmt range_stmt_cont range_stmts range_stmtp error_message_stmt error_app_tag_stmt description_stmt reference_stmt decimal64_specification fraction_digits_stmt string_restrictions string_restriction length_stmt length_stmt_cont length_stmts length_stmtp pattern_stmt pattern_stmt_cont pattern_stmts pattern_stmtp units_stmt default_stmt status_stmt data_def_stmt container_stmt container_stmt_cont container_stmts container_stmtp when_stmt when_stmts when_stmtp when_stmt_cont if_feature_stmt must_stmt must_stmt_cont must_stmtp must_stmts presence_stmt config_stmt grouping_stmt grouping_stmtp grouping_stmts grouping_stmt_cont leaf_stmt leaf_stmts leaf_stmtp mandatory_stmt leaf_list_stmt leaf_list_stmts leaf_list_stmtp min_elements_stmt max_elements_stmt ordered_by_stmt list_stmtp list_stmts list_stmt unique_stmt key_stmt key_arg_strs true_or_false enum_specification leafref_specification identityref_specification instance_identifier_specification bits_specification union_specification enum_stmt enum_stmt_cont enum_stmts enum_stmtp value_stmt status_arg bit_stmt bit_stmt_cont bit_stmts bit_stmtp position_stmt base_stmt require_instance_stmt path_stmt string_or_int_or_float submodule_stmt revision_stmt revision_stmt_cont revision_stmts revision_stmtp meta_stmts meta_stmt contact_stmt organization_stmt submodule_header_stmts belongs_to_stmt yang_version_stmt mod_or_submod augment_stmt augment_stmts augment_stmtp case_stmt case_stmt_cont case_stmtp case_stmts choice_stmt choice_stmtp choice_stmts choice_stmt_cont identity_stmt_cont identity_stmt identity_stmts identity_stmtp module_header_stmtsc.
 
-Terminals  module ident ';' '{' '}' namespace string 'yang-version' prefix import include 'revision-date' typedef type range 'error-message' 'error-app-tag' description reference 'fraction-digits' length pattern units default status container 'when' 'if-feature' must presence config grouping leaf mandatory 'leaf-list' 'max-elements' 'min-elements' 'ordered-by' integer list unique key true false enum current obsolete value deprecated bit position base 'require-instance' path submodule revision contact organization 'belongs-to' date augment 'case' choice string_pattern identity.
+Terminals  module ident ';' '{' '}' namespace string 'yang-version' prefix import include 'revision-date' typedef type range 'error-message' 'error-app-tag' description reference 'fraction-digits' length pattern units default status container 'when' 'if-feature' must presence config grouping leaf mandatory 'leaf-list' 'max-elements' 'min-elements' 'ordered-by' integer list unique key true false enum current obsolete value deprecated bit position base 'require-instance' path submodule revision contact organization 'belongs-to' date augment 'case' choice string_pattern identity float.
 
 Rootsymbol mod_or_submod.
 
@@ -18,7 +18,18 @@ mod_or_submod -> submodule_stmt : '$1'.
 %%                       "}" optsep
 module_stmt -> module ident '{' module_stmts '}' : {modname, extract_token('$2'), '$4'}.
 
-module_stmts -> module_header_stmts linkage_stmts meta_stmts revision_stmt body_stmts : {{header_stmts, '$1'},{linkage_stmts, '$2'}, {meta_stmts, '$3'}, {revision_stmt, '$4'}, {body_stmts, '$5'}}.
+module_stmts -> module_header_stmts
+                    linkage_stmts
+                    meta_stmts
+                    revision_stmt
+                    body_stmts
+
+                    : {{header_stmts, '$1'}
+                       ,{linkage_stmts, '$2'}
+                       ,{meta_stmts, '$3'}
+                       ,{revision_stmt, '$4'}
+                       ,{body_stmts, '$5'}
+                      }.
 
 %% submodule-stmt      = optsep submodule-keyword sep identifier-arg-str
 %%                       optsep
@@ -36,13 +47,15 @@ submodule_stmt -> submodule ident '{' submodule_header_stmts linkage_stmts meta_
                                                                                                                        {revision_stmts, '$7'},
                                                                                                                        {body_stmts, '$8'}
                                                                                                                       }.
+
 %% revision-stmt       = revision-keyword sep revision-date optsep
 %%                       (";" /
 %%                        "{" stmtsep
 %%                            [description-stmt stmtsep]
 %%                            [reference-stmt stmtsep]
 %%                        "}")
-revision_stmt -> revision date revision_stmt_cont : {revision, extract_token('$2'), '$3'}.
+revision_stmt -> revision date revision_stmt_cont : [{revision, extract_token('$2'), '$3'}].
+revision_stmt -> '$empty' : [].
 
 revision_stmt_cont -> ';' : [].
 revision_stmt_cont -> '{' revision_stmts '}' : '$2'.
@@ -92,12 +105,15 @@ belongs_to_stmt -> 'belongs-to' ident '{' prefix_stmt '}' : {'belongs-to', extra
 %%                       optsep stmtend
 yang_version_stmt -> 'yang-version' integer ';' : {'yang-version', integer_to_list(extract_token('$2'))}.
 
-%%
-%% MODULE HEADER STMTS
-%%
+%% module-header-stmts = ;; these stmts can appear in any order
+%%                       [yang-version-stmt stmtsep]
+%%                        namespace-stmt stmtsep
+%%                        prefix-stmt stmtsep
+module_header_stmts -> module_header_stmt module_header_stmtsc : ['$1'|'$2'].
 
-module_header_stmts -> '$empty' : [].
-module_header_stmts -> module_header_stmt module_header_stmts : ['$1'|'$2'].
+module_header_stmtsc -> '$empty' : [].
+module_header_stmtsc -> module_header_stmt module_header_stmtsc : ['$1'|'$2'].
+
 %%yang-version-keyword sep yang-version-arg-str optsep stmtend
 %% todo now we skip several
 module_header_stmt -> 'yang-version' ident ';' : {'yang-version', '$2'} .
@@ -131,8 +147,8 @@ linkage_stmt -> include_stmt : '$1'.
 body_stmts ->'$empty' : [].
 body_stmts -> body_stmt body_stmts : ['$1'|'$2'].
 
-%body_stmt -> feature_stmt : '$1'.
-body_stmt -> identity_stmt : '$1'.
+%body_stmt -> feature_stmt      : '$1'.
+body_stmt -> identity_stmt     : '$1'.
 body_stmt -> typedef_stmt      : '$1'.
 body_stmt -> grouping_stmt     : '$1'.
 body_stmt -> data_def_stmt     : '$1'.
@@ -777,10 +793,11 @@ pattern_stmtp -> reference_stmt     : '$1'.
 units_stmt -> units string ';' : {units, extract_token('$2')}.
 
 %% default-stmt        = default-keyword sep string stmtend
-default_stmt -> default string_or_int ';' : {default, '$2'}.
+default_stmt -> default string_or_int_or_float ';' : {default, '$2'}.
 
-string_or_int -> string  : {string, extract_token('$1')}.
-string_or_int -> integer : {integer, extract_token('$1')}.
+string_or_int_or_float -> string  : {string, extract_token('$1')}.
+string_or_int_or_float -> integer : {integer, extract_token('$1')}.
+string_or_int_or_float -> float   : {float, extract_token('$1')}.
 
 %% status-stmt         = status-keyword sep status-arg-str stmtend
 status_stmt -> status string ';' : {status, extract_token('$2')}.

@@ -15,6 +15,8 @@ Rules.
 %% here we skip this...
 %%An identifier MUST NOT start with (('X'|'x') ('M'|'m') ('L'|'l'))
 /\*(\\\^.|\\.|[^\*]|(\*[^/]))*\*/ : skip_token.
+{D}+\.{D}+((E|e)(\+|\-)?{D}+)? :
+			{token,{float,TokenLine,list_to_float(TokenChars)}}.
 "(\\\^.|\\.|[^"])*" : %% Strip quotes.
 			S = lists:sublist(TokenChars, 2, TokenLen - 2),
 			{token,{string,TokenLine,string_gen(S)}}.
